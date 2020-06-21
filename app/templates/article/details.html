@@ -1,0 +1,36 @@
+{% extends 'base.html' %}
+{% import "bootstrap/wtf.html" as wtf %}
+{%  include ['includes/_detail.html'] %}
+{% block page_body %}
+    <div class="container">
+        {# Meta 信息 #}
+        <span>作者:{{ article.user.name }}</span> <span>发表日期:{{ article.created }}</span>
+        <a href="edit/{{article.id}}">编辑</a>
+        <a id="delete" style="cursor:pointer"  article_id="{{ article.id }}">删除</a>
+        {# 正文 #}
+        <div>
+            {{ article.body_html | safe }}
+        </div>
+
+        {# 操作链接 #}
+        <h3>评论</h3>
+        {# 发表评论 #}
+        <div>
+            {{ wtf.quick_form(form) }}
+        </div>
+
+        {# 评论列表 #}
+        {% for comment in article.comments|sort(attribute='created',reverse=True ) %}
+            <div class="media">
+                <div class="media-body">
+                    <small class="text-muted">{{loop.index}}楼{{ comment.user.name }}@{{ comment.created }}</small>
+                    <div>{{ comment.body }}    <a href="{{url_for('main.reply', article_id=article.id, comment_id=comment.id)}}">回复</a></div>
+                    {% for reply in comment.comments %}
+                    <small class="text-muted">{{ reply.user.name }}回复{{comment.user.name}}  {{ reply.created }}</small>
+                    <div>{{ reply.body }}    <a href="{{url_for('main.reply', article_id=article.id, comment_id=comment.id)}}">回复</a></div>
+                    {% endfor %}
+                </div>
+            </div>
+        {% endfor %}
+    </div>
+{% endblock %}

@@ -1,0 +1,2 @@
+SQLALCHEMY_TRACK_MODIFICATIONS = True
+SECRET_KEY = 'super secret key'

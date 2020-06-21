@@ -1,0 +1,18 @@
+<meta charset="UTF-8">
+<link href="{{ url_for('static',filename='editormd/css/editormd.css') }}" rel="stylesheet">
+<script src="{{ url_for('static',filename='js/jquery-1.11.1.min.js') }}"> </script>
+<script src="{{ url_for('static',filename='js/editormd.min.js') }}"></script>
+<script type="text/javascript">
+$(function () {
+    var testEditor = editormd("fancy-editormd", {
+        // width: "100%", 请不要添加
+        height: 640,
+        syncScrolling: "single",
+        path: "{{url_for('static',filename='editormd/lib/') }}",
+        saveHTMLToTextarea : true,
+
+        imageUpload: true, //开启图片上传
+        imageUploadURL: "{{url_for('main.upload')}}"
+    });
+});
+</script>

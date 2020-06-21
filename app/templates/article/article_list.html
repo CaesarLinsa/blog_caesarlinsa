@@ -1,0 +1,14 @@
+{% extends 'base.html' %}
+{% block page_body %}
+    <div class="container">
+        <ul class="list-group">
+            {% for article in  articles %}
+            <li class="list-group-item">
+                <a href={{ article.id }}> {{ article.title }}
+                by {{article.user.name}}</a>
+            </li>
+            {% endfor %}
+        </ul>
+    </div>
+{% endblock %}
+

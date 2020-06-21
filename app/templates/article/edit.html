@@ -1,0 +1,20 @@
+{% extends 'base.html' %}
+{% include ['includes/_edit.html'] %}
+{% block page_body %}
+    <div class="container">
+        <form method="POST">
+            {{ form.hidden_tag() }}
+            <div class="form-group">
+                {{form.title(class="form-group", type="text", placeholder="请输入标题") }}
+            </div>
+            <div>
+                <div id="fancy-editormd" class="editormd">
+                    {{ form.body(style="display:none;") }}
+                </div>
+            </div>
+            <input class="btn-primary" type="submit" value="发布">
+        </form>
+    </div>
+{% endblock %}
+
+

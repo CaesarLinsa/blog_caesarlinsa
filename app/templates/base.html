@@ -1,5 +1,4 @@
 {% extends 'bootstrap/base.html' %}
-
 {% block head %}
     {{ super() }}
     {% include ['includes/_head.html'] %}
@@ -16,15 +15,6 @@
 {% endblock %}
 
 {% block content %}
-    {% block header %}
-        <header>
-            <div class="page-header">
-                <div class="container">
-                    <h3>{{ title }}</h3>
-                </div>
-            </div>
-        </header>
-    {% endblock %}
     {% block page_body %}
     {% endblock %}
 {% endblock %}

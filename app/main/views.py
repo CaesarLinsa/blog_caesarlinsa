@@ -46,9 +46,24 @@ def index():
 
 @main.route('/article/list', methods=['GET'])
 def article_list():
+    return render_template("article/article_list.html")
+
+
+@main.route('/article/data', methods=['GET'])
+def article_data():
+    res = []
     articles = Article.query.all()
-    return render_template("article/article_list.html",
-                           articles=articles)
+    for article in articles:
+        res.append(
+            {
+                "id": article.id ,
+                "title": "<a href='%s' style='cursor:pointer'>%s</a>"
+                         % (article.id,article.title),
+                "auther": article.user.name,
+                'edit': "<a href='edit/%s' style='cursor:pointer' >编辑<a>" % article.id
+             }
+        )
+    return jsonify(res)
 
 
 @main.route('/article/<int:id>', methods=['GET', 'POST'])

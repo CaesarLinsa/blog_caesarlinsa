@@ -10,8 +10,8 @@ class ArticleForm(Form):
 
 
 class CommentForm(Form):
-    body = PageDownField(label=u'评论', validators=[DataRequired()])
-    submit = SubmitField(u'发表')
+    body = PageDownField(label="", validators=[DataRequired()])
+    submit = SubmitField(u'提交')
 
 
 class ReplyForm(Form):

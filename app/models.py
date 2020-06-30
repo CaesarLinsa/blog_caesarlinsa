@@ -4,7 +4,7 @@ from . import db
 from . import login_manager
 from flask_login import UserMixin
 from markdown import markdown
-from sqlalchemy.dialects.mysql import DATETIME
+
 
 class Role(db.Model):
     __tablename__ = 'role'
@@ -46,7 +46,7 @@ class Article(db.Model):
     title = db.Column(db.String, nullable=False)
     body = db.Column(db.String, nullable=False)
     body_html = db.Column(db.String)
-    created = db.Column(DATETIME(fsp=6), index=True, default=datetime.utcnow)
+    created = db.Column(db.DateTime, nullable=False, default=datetime.now)
     # 每篇文章都有一个作者，一一对应关系,在jinja模板中可以使用article.user.name获取用户名
     auther_id = db.Column(db.Integer, db.ForeignKey('user.id'))
     # 每篇文章可以有n条评论，一对多关系
@@ -67,7 +67,7 @@ class Comment(db.Model):
     __tablename__ = 'comment'
     id = db.Column(db.Integer, primary_key=True)
     body = db.Column(db.String, nullable=False)
-    created = db.Column(db.DateTime, index=True, default=datetime.utcnow)
+    created = db.Column(db.DateTime, nullable=False, default=datetime.now)
     article_id = db.Column(db.Integer, db.ForeignKey('article.id'))
     auther_id = db.Column(db.Integer, db.ForeignKey('user.id'))
     comments = db.relationship('Reply', backref='comment')
@@ -77,6 +77,6 @@ class Reply(db.Model):
     __tablename__ = 'reply'
     id = db.Column(db.Integer, primary_key=True)
     body = db.Column(db.String, nullable=False)
-    created = db.Column(db.DateTime, index=True, default=datetime.utcnow)
+    created = db.Column(db.DateTime, nullable=False, default=datetime.now())
     comment_id = db.Column(db.Integer, db.ForeignKey('comment.id'))
     auther_id = db.Column(db.Integer, db.ForeignKey('user.id'))

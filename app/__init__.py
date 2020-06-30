@@ -2,7 +2,7 @@
 from flask import Flask, request
 from flask_bootstrap import Bootstrap
 from flask_sqlalchemy import SQLAlchemy
-from flask_login import LoginManager, current_user
+from flask_login import LoginManager
 
 db = SQLAlchemy()
 login_manager = LoginManager()
@@ -31,4 +31,9 @@ def create_app():
     def is_current_link(link):
         return link == request.path
 
+    @app.template_filter('strftime')
+    def datetime_format(date):
+        return date.strftime("%Y-%m-%d %H:%M:%S")
+
     return app
+

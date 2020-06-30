@@ -131,7 +131,7 @@ def delete_article(id):
     return jsonify(res)
 
 
-@main.route('/reply/<int:article_id>/<int:comment_id>', methods=['GET', 'POST'])
+@main.route('/reply/<int:article_id>/<int:comment_id>', methods=['POST'])
 @login_required
 def reply(article_id, comment_id):
     form = ReplyForm(request.form)
@@ -142,7 +142,6 @@ def reply(article_id, comment_id):
         db.session.commit()
         # url_for调用处理函数函数名
         return redirect(url_for('.comments', id=article_id))
-    return render_template("article/reply.html", form=form)
 
 
 @main.route('/about')

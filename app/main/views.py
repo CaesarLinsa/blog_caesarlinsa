@@ -134,14 +134,15 @@ def delete_article(id):
 @main.route('/reply/<int:article_id>/<int:comment_id>', methods=['POST'])
 @login_required
 def reply(article_id, comment_id):
-    form = ReplyForm(request.form)
-    if form.validate_on_submit():
-        reply = Reply(comment_id=comment_id, auther_id=current_user.id)
-        reply.body = form.body.data
-        db.session.add(reply)
-        db.session.commit()
-        # url_for调用处理函数函数名
-        return redirect(url_for('.comments', id=article_id))
+    reply = Reply(comment_id=comment_id, auther_id=current_user.id)
+    reply.body = request.form.get("values")
+    db.session.add(reply)
+    db.session.commit()
+    ret = {
+        "data": reply.body
+    }
+    print(ret)
+    return jsonify(ret)
 
 
 @main.route('/about')

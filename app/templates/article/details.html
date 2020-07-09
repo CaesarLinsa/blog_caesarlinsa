@@ -1,6 +1,8 @@
 {% extends 'base.html' %}
 {% import "bootstrap/wtf.html" as wtf %}
 {%  include ['includes/_detail.html'] %}
+ {% block scripts %}
+{% endblock %}
 {% block page_body %}
     <div class="container">
         {# Meta 信息 #}
@@ -23,19 +25,11 @@
             <div class="media">
                 <div class="media-body">
                     <small class="text-muted">{{loop.index}}楼{{ comment.user.name }}@{{ comment.created | strftime }}</small>
-                    <div>{{ comment.body }}    <a href="javascript:;" class="reply">回复</a>
-                        <div style="display: none">
-                            {% set action_url="/reply/%d/%d" %(article.id, comment.id) %}
-                            {{ wtf.quick_form(form, action=action_url, method='POST') }}
-                        </div>
+                    <div>{{ comment.body }}    <a href="javascript:;" class="reply" comment_id="{{ comment.id }}">回复</a>
                     </div>
                     {% for reply in comment.comments %}
                     <small class="text-muted">{{ reply.user.name }}回复{{comment.user.name}}  {{ reply.created | strftime}}</small>
-                    <div>{{ reply.body }}    <a href="javascript:;" class="reply">回复</a>
-                        <div style="display: none">
-                            {% set action_url="/reply/%d/%d" %(article.id, comment.id) %}
-                            {{ wtf.quick_form(form, action=action_url, method='POST') }}
-                        </div>
+                    <div>{{ reply.body }}    <a href="javascript:;" class="reply" comment_id="{{ comment.id }}">回复</a>
                     </div>
                     {% endfor %}
                 </div>

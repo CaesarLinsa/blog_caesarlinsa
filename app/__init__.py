@@ -3,7 +3,9 @@ from flask import Flask, request
 from flask_bootstrap import Bootstrap
 from flask_sqlalchemy import SQLAlchemy
 from flask_login import LoginManager
+from flask_caching import Cache
 
+redis_cache = Cache()
 db = SQLAlchemy()
 login_manager = LoginManager()
 login_manager.session_protection = 'strong'
@@ -21,6 +23,7 @@ def create_app():
     app.config['SQLALCHEMY_COMMIT_ON_TEARDOWN'] = True
     app.config['BOOTSTRAP_SERVE_LOCAL'] = True
     db.init_app(app)
+    redis_cache.init_app(app)
     login_manager.init_app(app)
     from app.auth.views import auth as auth_blueprint
     app.register_blueprint(auth_blueprint, url_prefix='/auth')

@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 from flask import render_template, request, redirect, url_for
 from flask import Blueprint
-from flask_login import login_user, logout_user, current_user
+from flask_login import login_user, logout_user
 from app.auth.forms import LoginForm, RegisterForm
 from app.models import User
 from app import db
@@ -39,6 +39,7 @@ def register():
         db.session.commit()
         return redirect(url_for('auth.login'))
     return render_template("register.html", title=u'注册', form=form)
+
 
 @auth.route('/logout')
 def logout():

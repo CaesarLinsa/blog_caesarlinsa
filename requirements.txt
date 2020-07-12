@@ -9,6 +9,8 @@ Flask-Migrate==2.5.2
 Flask-PageDown==0.2.2
 Flask-Script==2.0.6
 Flask-SQLAlchemy==2.4.1
+Flask-Caching==1.9.0
+redis==3.5.3
 Flask-WTF==0.14.2
 itsdangerous==1.1.0
 Jinja2==2.11.1

@@ -2,13 +2,13 @@ import os
 from datetime import datetime
 
 from flask import Response
-from flask import render_template, request, redirect, url_for, render_template_string
+from flask import render_template, request, redirect, url_for
 from flask import Blueprint, jsonify
 from ..models import Article, Comment, Reply
-from .forms import ArticleForm, CommentForm, ReplyForm
+from .forms import ArticleForm, CommentForm
 from flask_login import login_required, current_user
 from .. import db
-
+from .. import redis_cache
 main = Blueprint('main', __name__)
 
 
@@ -52,7 +52,11 @@ def article_list():
 @main.route('/article/data', methods=['GET'])
 def article_data():
     res = []
-    articles = Article.query.all()
+    if redis_cache.get("article_data"):
+        articles = redis_cache.get("article_data")
+    else:
+        articles = Article.query.options(db.joinedload("user")).all()
+        redis_cache.set("article_data", articles)
     for article in articles:
         res.append(
             {
@@ -63,6 +67,7 @@ def article_data():
                 'edit': "<a href='edit/%s' style='cursor:pointer' >编辑<a>" % article.id
              }
         )
+
     return jsonify(res)
 
 
@@ -97,6 +102,7 @@ def edit(id=0):
     if form.validate_on_submit():
         if id == 0:
             article = Article(user=current_user)
+            redis_cache.delete("article_data")
         else:
             article = Article.query.get_or_404(id)
         article.body = form.body.data
@@ -124,6 +130,7 @@ def delete_article(id):
     article = Article.query.get(id)
     db.session.delete(article)
     db.session.commit()
+    redis_cache.delete("article_data")
     res = {
         'success': 0,
         'message': '删除成功',

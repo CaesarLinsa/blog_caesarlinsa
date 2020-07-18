@@ -24,8 +24,7 @@ class User(UserMixin, db.Model):
     name = db.Column(db.String)
     email = db.Column(db.String)
     password = db.Column(db.String)
-
-    role_id = db.Column(db.Integer, db.ForeignKey('role.id'))
+    role_id = db.Column(db.Integer, db.ForeignKey('role.id'), default=2)
     articles = db.relationship('Article', backref='user')
     comments = db.relationship('Comment', backref='user')
     reply = db.relationship('Reply', backref='user')
@@ -45,6 +44,8 @@ class Article(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     title = db.Column(db.String, nullable=False)
     body = db.Column(db.String, nullable=False)
+    hit_numers = db.Column(db.Integer, nullable=False, default=0)
+    comment_numbers = db.Column(db.Integer, nullable=False, default=0)
     body_html = db.Column(db.String)
     created = db.Column(db.DateTime, nullable=False, default=datetime.now)
     # 每篇文章都有一个作者，一一对应关系,在jinja模板中可以使用article.user.name获取用户名

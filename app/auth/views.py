@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-from flask import render_template, request, redirect, url_for
+from flask import render_template, request, redirect, url_for, flash
 from flask import Blueprint
 from flask_login import login_user, logout_user
 from app.auth.forms import LoginForm, RegisterForm
@@ -22,6 +22,8 @@ def login():
         if user is not None:
             login_user(user)
             return redirect(url_for('auth.index'))
+        else:
+            flash("用户名或密码错误")
 
     return render_template('login.html',
                            title=u'登录',

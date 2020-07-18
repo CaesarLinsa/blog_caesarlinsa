@@ -3,9 +3,9 @@ from flask import Flask, request
 from flask_bootstrap import Bootstrap
 from flask_sqlalchemy import SQLAlchemy
 from flask_login import LoginManager
-from flask_caching import Cache
+from flask_redis import FlaskRedis
 
-redis_cache = Cache()
+redis_client = FlaskRedis()
 db = SQLAlchemy()
 login_manager = LoginManager()
 login_manager.session_protection = 'strong'
@@ -14,7 +14,6 @@ login_manager.login_view = 'auth.login'
 
 def create_app():
     app = Flask(__name__)
-
     Bootstrap(app)
 
     app.config.from_pyfile('config')
@@ -23,7 +22,7 @@ def create_app():
     app.config['SQLALCHEMY_COMMIT_ON_TEARDOWN'] = True
     app.config['BOOTSTRAP_SERVE_LOCAL'] = True
     db.init_app(app)
-    redis_cache.init_app(app)
+    redis_client.init_app(app)
     login_manager.init_app(app)
     from app.auth.views import auth as auth_blueprint
     app.register_blueprint(auth_blueprint, url_prefix='/auth')
@@ -39,4 +38,3 @@ def create_app():
         return date.strftime("%Y-%m-%d %H:%M:%S")
 
     return app
-

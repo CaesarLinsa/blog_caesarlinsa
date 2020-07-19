@@ -4,6 +4,10 @@ from . import db
 from . import login_manager
 from flask_login import UserMixin
 from markdown import markdown
+from werkzeug.security import generate_password_hash, check_password_hash
+from itsdangerous import TimedJSONWebSignatureSerializer as Serializer
+import hashlib
+from flask import current_app
 
 
 class Role(db.Model):
@@ -23,7 +27,9 @@ class User(UserMixin, db.Model):
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String)
     email = db.Column(db.String)
-    password = db.Column(db.String)
+    password_hash = db.Column(db.String(128))
+    confirmed = db.Column(db.Boolean, default=False)
+    about_me = db.Column(db.Text())
     role_id = db.Column(db.Integer, db.ForeignKey('role.id'), default=2)
     articles = db.relationship('Article', backref='user')
     comments = db.relationship('Comment', backref='user')
@@ -32,6 +38,53 @@ class User(UserMixin, db.Model):
     @staticmethod
     def on_created(target, value, oldvalue, initiator):
         target.role = Role.query.filter_by(name='Guests').first()
+
+    @property
+    def password(self):
+        raise AttributeError('password is not a readable attribute')
+
+    @password.setter
+    def password(self, password):
+        self.password_hash = generate_password_hash(password)
+
+    def verify_password(self, password):
+        return check_password_hash(self.password_hash, password)
+
+    def generate_confirmation_token(self, expiration=3600):
+        s = Serializer(current_app.config['SECRET_KEY'], expiration)
+        return s.dumps({'confirm': self.id}).decode('utf-8')
+
+    def confirm(self, token):
+        s = Serializer(current_app.config['SECRET_KEY'])
+        try:
+            data = s.loads(token.encode('utf-8'))
+        except:
+            return False
+        if data.get('confirm') != self.id:
+            return False
+        self.confirmed = True
+        db.session.add(self)
+        return True
+
+    def generate_reset_token(self, expiration=3600):
+        s = Serializer(current_app.config['SECRET_KEY'], expiration)
+        return s.dumps({'reset': self.id}).decode('utf-8')
+
+    @staticmethod
+    def reset_password(token, new_password):
+        s = Serializer(current_app.config['SECRET_KEY'])
+        try:
+            data = s.loads(token.encode('utf-8'))
+            print(data)
+        except:
+            return False
+        user = User.query.get(data.get('reset'))
+        if user is None:
+            return False
+        user.password = new_password
+        print("passwd:%s" % new_password)
+        db.session.add(user)
+        return True
 
 
 @login_manager.user_loader

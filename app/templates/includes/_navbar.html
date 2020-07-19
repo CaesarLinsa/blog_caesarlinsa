@@ -25,7 +25,14 @@
                 <li {% if url_for('main.article_list') is current_link %}class="active"{% endif %}>
                     <a href="{{ url_for('main.article_list') }}" title="博客列表">博客列表</a>
                 </li>
-                <li {% if url_for('main.about') is current_link %}class="active"{% endif %}>
+                <li {% if url_for('auth.change_password') is current_link %} class="active"{% endif %}>
+                    <a href="{{ url_for('auth.change_password') }}" class="dropdown-toggle" data-toggle="dropdown" title="密码管理">密码管理</a>
+                    <ul class="dropdown-menu" style="min-width:100%;">
+                        <li> <a href={{ url_for('auth.change_password') }}>密码修改</a> </li>
+                        <li> <a href={{ url_for('auth.passwd_reset') }}>密码重置</a> </li>
+                    </ul>
+                </li>
+                <li {% if url_for('main.about') is current_link %} class="active"{% endif %}>
                     <a href="{{ url_for('main.about') }}" title="关于">关于我</a>
                 </li>
             </ul>

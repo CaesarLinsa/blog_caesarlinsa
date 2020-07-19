@@ -1,8 +1,14 @@
+## database
+SQLALCHEMY_DATABASE_URI='sqlite:///data.sqlite'
+SQLALCHEMY_COMMIT_ON_TEARDOWN = True
 SQLALCHEMY_ECHO = False
 SQLALCHEMY_TRACK_MODIFICATIONS = True
 SECRET_KEY = 'super secret key'
 
-# redis
+## bootstrap
+BOOTSTRAP_SERVE_LOCAL = True
+
+## redis
 REDIS_URL = "redis://:@127.0.0.1:6379/0"
 # flask_session的配置信息
 # 指定 session 保存到 redis 中
@@ -13,3 +19,8 @@ SESSION_PERMANENT = False
 # session 的有效期，单位是秒
 PERMANENT_SESSION_LIFETIME = 86400
 
+## mail
+MAIL_SERVER = "smtp.163.com"
+MAIL_PORT = 25
+MAIL_USE_TLS = True
+FLASKY_MAIL_SENDER="caesar_linsa@163.com"

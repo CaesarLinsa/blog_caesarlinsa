@@ -1,0 +1,5 @@
+<p>您好，{{ user.name }},</p>
+<p>欢迎注册<b>博客</b>!</p>
+<p>确认账号 <a href="{{ url_for('auth.confirm', token=token, _external=True) }}">点击</a>.</p>
+<p>您可以将以下链接粘贴到浏览器的地址栏中:</p>
+<p>{{ url_for('auth.confirm', token=token, _external=True) }}</p>

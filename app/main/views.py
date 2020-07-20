@@ -4,12 +4,13 @@ from datetime import datetime
 from flask import Response
 from flask import render_template, request, redirect, url_for
 from flask import Blueprint, jsonify
-from ..models import Article, Comment, Reply, User
+from ..models import Article, Comment, Reply, User, Permission
 from .forms import ArticleForm, CommentForm
 from flask_login import login_required, current_user
 from .. import db
 from .. import redis_client
 import pickle
+from .. utils.decorators import permission_required
 
 main = Blueprint('main', __name__)
 
@@ -53,12 +54,13 @@ def article_list():
 
 
 @main.route('/article/data', methods=['GET'])
+@login_required
 def article_data():
     res = []
     if redis_client.get("article_data_%s" % current_user.name):
         articles = pickle.loads(redis_client.get("article_data_%s" % current_user.name))
     else:
-        articles = Article.query.options(db.joinedload("user")).filter(User.name == current_user.name).all()
+        articles = Article.query.options(db.joinedload("user")).filter_by(auther_id=current_user.id).all()
         redis_client.set("article_data_%s" % current_user.name, pickle.dumps(articles))
     for article in articles:
         res.append(
@@ -76,6 +78,7 @@ def article_data():
 
 @main.route('/article/<int:id>', methods=['GET', 'POST'])
 @login_required
+@permission_required(Permission.COMMENT)
 def comments(id):
     article = Article.query.get_or_404(id)
     form = CommentForm(request.form)
@@ -139,6 +142,7 @@ def edit(id=0):
 
 
 @main.route('/article/delete/<int:id>', methods=['DELETE'])
+@permission_required(Permission.WRITE)
 def delete_article(id):
     article = Article.query.get(id)
     db.session.delete(article)
@@ -157,6 +161,7 @@ def delete_article(id):
 
 @main.route('/reply/<int:article_id>/<int:comment_id>', methods=['POST'])
 @login_required
+@permission_required(Permission.COMMENT)
 def reply(article_id, comment_id):
     reply = Reply(comment_id=comment_id, auther_id=current_user.id)
     reply.body = request.form.get("values")

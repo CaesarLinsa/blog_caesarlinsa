@@ -6,31 +6,80 @@ from flask_login import UserMixin
 from markdown import markdown
 from werkzeug.security import generate_password_hash, check_password_hash
 from itsdangerous import TimedJSONWebSignatureSerializer as Serializer
-import hashlib
 from flask import current_app
+
+
+class Permission:
+    """
+    权限制，高权限肯定拥有低权限。比如WRITE，肯定拥有COMMENT
+    """
+    COMMENT = 1
+    WRITE = 2
+    MODERATE = 4
+    ADMIN = 18
 
 
 class Role(db.Model):
     __tablename__ = 'role'
     id = db.Column(db.Integer, primary_key=True)
-    name = db.Column(db.String)
+    name = db.Column(db.String, unique=True)
+    default = db.Column(db.Boolean, default=False, index=True)
+    permissions = db.Column(db.Integer)
     users = db.relationship('User', backref='role')
 
+    def __init__(self, **kwargs):
+        super(Role, self).__init__(**kwargs)
+        if self.permissions is None:
+            self.permissions = 0
+
     @staticmethod
-    def seed():
-        db.session.add_all(map(lambda r: Role(name=r), ['Guests', 'Administrators']))
+    def insert_role():
+        roles = {
+            'User': [Permission.COMMENT, Permission.WRITE],
+            'Moderator': [Permission.COMMENT, Permission.WRITE, Permission.MODERATE],
+            'Administrator':[Permission.COMMENT, Permission.WRITE, Permission.MODERATE, Permission.ADMIN]
+        }
+        default_role = "User"
+        for r in roles:
+            role = Role.query.filter_by(name=r).first()
+            if role is None:
+                role= Role(name=r)
+            role.reset_permission()
+            for perm in roles[r]:
+                role.add_permission(perm)
+            role.default = (role.name == default_role)
+            db.session.add(role)
         db.session.commit()
+
+    def remvove_permisson(self, perm):
+        if self.has_permission(perm):
+            self.permissions -= perm
+
+    def add_permission(self, perm):
+        if not self.has_permission(perm):
+            self.permissions += perm
+
+    def has_permission(self, perm):
+        # 因为权限为2的次幂，叠加，值为2的n-1次方
+        # 任何2的n-1次方内的值，与其位运算得本身
+        return self.permissions & perm == perm
+
+    def reset_permission(self):
+        self.permissions = 0
+
+    def __str__(self):
+        return '<Role> %r' % self.name
 
 
 class User(UserMixin, db.Model):
     __tablename__ = 'user'
-    id = db.Column(db.Integer, primary_key=True)
-    name = db.Column(db.String)
-    email = db.Column(db.String)
+    id = db.Column(db.Integer, primary_key=True, index=True)
+    name = db.Column(db.String, unique=True)
+    email = db.Column(db.String, unique=True)
     password_hash = db.Column(db.String(128))
     confirmed = db.Column(db.Boolean, default=False)
     about_me = db.Column(db.Text())
-    role_id = db.Column(db.Integer, db.ForeignKey('role.id'), default=2)
+    role_id = db.Column(db.Integer, db.ForeignKey('role.id'), default=1)
     articles = db.relationship('Article', backref='user')
     comments = db.relationship('Comment', backref='user')
     reply = db.relationship('Reply', backref='user')
@@ -86,6 +135,11 @@ class User(UserMixin, db.Model):
         db.session.add(user)
         return True
 
+    def can(self, perm):
+        return self.role is not None and self.role.has_permission(perm)
+
+    def is_administrator(self):
+        return self.role.has_permission(Permission.ADMIN)
 
 @login_manager.user_loader
 def load_user(user_id):

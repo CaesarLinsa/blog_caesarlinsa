@@ -13,8 +13,7 @@
             </button>
             <span class="navbar-brand">博客</span>
         </div>
-        <div class="navbar-collapse collapse"
-             id="7bc75dbef69e41ff2452de70079c8ece1320ea7c">
+        <div class="navbar-collapse collapse">
             <ul class="nav navbar-nav">
                 <li {% if url_for('main.index') is current_link %}class="active"{% endif %}>
                     <a href="{{ url_for('main.index') }}" title="主页">主页</a>
@@ -23,7 +22,7 @@
                     <a href="{{ url_for('main.edit') }}" title="新文章">新文章</a>
                 </li>
                 <li {% if url_for('main.article_list') is current_link %}class="active"{% endif %}>
-                    <a href="{{ url_for('main.article_list') }}" title="博客列表">博客列表</a>
+                    <a href="{{ url_for('main.article_list') }}" title="博客列表">博客管理</a>
                 </li>
                 <li {% if url_for('auth.change_password') is current_link %} class="active"{% endif %}>
                     <a href="{{ url_for('auth.change_password') }}" class="dropdown-toggle" data-toggle="dropdown" title="密码管理">密码管理</a>

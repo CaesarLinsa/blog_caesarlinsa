@@ -1,0 +1,19 @@
+{% if articles %}
+    {%  for article in articles %}
+        <h3 class="text-primary"><a href="{{url_for('main.comments', id=article.id)}}">{{ article.title }}</a></h3>
+        <p>
+            {{ article.body_html| striptags |truncate }}
+            <small><a href="{{ url_for('main.comments', id=article.id) }}">阅读更多</a></small>
+        </p>
+        <small>
+            评论<a href="{{ url_for('main.comments', id=article.id) }}">({{ article.comments | length }})</a>
+            点击<a href="{{ url_for('main.comments', id=article.id) }}">({{ article.hit_numers }})</a>
+            日期 <span>{{ article.created | strftime }}</span>
+        </small>
+    {% endfor %}
+{% else %}
+    <div class="tooltip">
+        <h5>文章空空如也</h5>
+    </div>
+{% endif %}
+

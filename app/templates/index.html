@@ -1,1 +1,22 @@
 {% extends 'base.html' %}
+{% from "bootstrap/pagination.html" import render_pagination %}
+
+{% block scripts %}
+{% endblock %}
+
+{% block content%}
+{% block page_body %}
+    <div class="row">
+        <div class="col-sm-1">
+        </div>
+        <div class="col-sm-8">
+            {% include 'article/_articles.html' %}
+            {% if articles %}
+                <div class="page-footer">{{render_pagination(pagination) }}</div>
+            {% endif %}
+        </div>
+            <div class="col-sm-1">
+        </div>
+    </div>
+{% endblock %}
+{% endblock %}

@@ -10,9 +10,21 @@ from flask_login import login_required, current_user
 from .. import db
 from .. import redis_client
 import pickle
-from .. utils.decorators import permission_required
+from ..utils.decorators import permission_required
+from flask import current_app
 
 main = Blueprint('main', __name__)
+
+
+@main.route("/")
+@login_required
+def index():
+    page = request.args.get('page', 1, type=int)
+    per_page = current_app.config.get("ARTICLE_PER_PAGE", 10)
+    pagination = Article.query.filter_by(auther_id=current_user.id).\
+        order_by(Article.created.desc()).paginate(page, per_page=per_page)
+    articles = pagination.items
+    return render_template("index.html", pagination=pagination, articles=articles)
 
 
 @main.route("/upload", methods=["POST"])
@@ -40,11 +52,6 @@ def image(name):
     with open(name, 'rb') as f:
         resp = Response(f.read(), mimetype="image/jpeg")
     return resp
-
-
-@main.route("/")
-def index():
-    return render_template("index.html", title="caesar博客")
 
 
 @main.route('/article/list', methods=['GET'])

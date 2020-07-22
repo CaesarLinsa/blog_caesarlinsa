@@ -8,8 +8,6 @@ from ..models import Article, Comment, Reply, User, Permission
 from .forms import ArticleForm, CommentForm
 from flask_login import login_required, current_user
 from .. import db
-from .. import redis_client
-import pickle
 from ..utils.decorators import permission_required
 from flask import current_app
 
@@ -37,7 +35,8 @@ def upload():
         }
     else:
         ex = os.path.splitext(file.filename)[1]
-        filename = datetime.now().strftime('%Y%m%d%H%M%S') + ex
+        filename = os.path.join(current_app.root_path, 'static', 'img', datetime.now().strftime('%Y%m%d%H%M%S') + ex)
+        print(filename)
         file.save(filename)
         res = {
             'success': 1,
@@ -64,11 +63,7 @@ def article_list():
 @login_required
 def article_data():
     res = []
-    if redis_client.get("article_data_%s" % current_user.name):
-        articles = pickle.loads(redis_client.get("article_data_%s" % current_user.name))
-    else:
-        articles = Article.query.options(db.joinedload("user")).filter_by(auther_id=current_user.id).all()
-        redis_client.set("article_data_%s" % current_user.name, pickle.dumps(articles))
+    articles = Article.query.options(db.joinedload("user")).filter_by(auther_id=current_user.id).all()
     for article in articles:
         res.append(
             {
@@ -95,15 +90,8 @@ def comments(id):
         comment = Comment(body=form.body.data, article_id=id, auther_id=current_user.id)
         db.session.add(comment)
         db.session.commit()
-        article_comm_count = "article_%s_comm" % id
-        redis_client.incr(article_comm_count, 1)
         return redirect(url_for(".comments", id=id))
-    article_hits_count = "article_%s_hits" % article.id
-    redis_client.incr(article_hits_count, 1)
-    article.hit_numers = str(redis_client.get(article_hits_count), encoding="utf-8")
-    article_comm_count = "article_%s_comm" % article.id
-    article_comm_count_value = redis_client.get(article_comm_count)
-    article.comment_numbers = str(article_comm_count_value, encoding="utf-8") if article_comm_count_value else 0
+    article.hit_numers += 1
     return render_template("article/details.html",
                            title=article.title,
                            form=form,
@@ -125,7 +113,6 @@ def edit(id=0):
     if form.validate_on_submit():
         if id == 0:
             article = Article(user=current_user)
-            redis_client.delete("article_data_%s" % current_user.name)
         else:
             article = Article.query.get_or_404(id)
         article.body = form.body.data
@@ -154,11 +141,6 @@ def delete_article(id):
     article = Article.query.get(id)
     db.session.delete(article)
     db.session.commit()
-    redis_client.delete("article_data_%s" % current_user.name)
-    article_comm_count = "article_%s_comm" % article.id
-    article_hits_count = "article_%s_hits" % article.id
-    redis_client.delete(article_comm_count)
-    redis_client.delete(article_hits_count)
     res = {
         'success': 0,
         'message': '删除成功',
@@ -177,7 +159,6 @@ def reply(article_id, comment_id):
     ret = {
         "data": reply.body
     }
-    print(ret)
     return jsonify(ret)
 
 

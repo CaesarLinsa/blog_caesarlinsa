@@ -10,7 +10,7 @@
         <a href="edit/{{article.id}}">编辑</a>
         <a id="delete" style="cursor:pointer"  article_id="{{ article.id }}">删除</a>
         <span>点击量({{ article.hit_numers}})</span>
-        <span>评论({{ article.comment_numbers}})</span>
+        <span>评论({{ article.comments | length}})</span>
         {# 正文 #}
         <div>
             {{ article.body_html | safe }}

@@ -1,14 +1,12 @@
 # -*- coding: utf-8 -*-
 import os
 
-from flask import Flask, request
+from flask import Flask, request, render_template
 from flask_bootstrap import Bootstrap
 from flask_sqlalchemy import SQLAlchemy
 from flask_login import LoginManager
-from flask_redis import FlaskRedis
 from flask_mail import Mail
 
-redis_client = FlaskRedis()
 db = SQLAlchemy()
 login_manager = LoginManager()
 mail = Mail()
@@ -20,8 +18,8 @@ def create_app():
     app = Flask(__name__)
     Bootstrap(app)
     app.config.from_pyfile('config')
+    register_errors(app)
     db.init_app(app)
-    redis_client.init_app(app)
     login_manager.init_app(app)
     app.config['MAIL_USERNAME'] = os.environ.get("MAIL_USERNAME")
     app.config['MAIL_PASSWORD'] = os.environ.get("MAIL_PASSWORD")
@@ -40,3 +38,17 @@ def create_app():
         return date.strftime("%Y-%m-%d %H:%M:%S")
 
     return app
+
+
+def register_errors(app):
+    @app.errorhandler(400)
+    def bad_request(e):
+        return render_template('errors/403.html'), 403
+
+    @app.errorhandler(404)
+    def page_not_found(e):
+        return render_template('errors/404.html'), 404
+
+    @app.errorhandler(500)
+    def internal_server_error(e):
+        return render_template('errors/500.html'), 500

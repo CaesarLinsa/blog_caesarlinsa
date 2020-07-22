@@ -16,7 +16,7 @@ class Permission:
     COMMENT = 1
     WRITE = 2
     MODERATE = 4
-    ADMIN = 18
+    ADMIN = 8
 
 
 class Role(db.Model):
@@ -152,7 +152,6 @@ class Article(db.Model):
     title = db.Column(db.String, nullable=False)
     body = db.Column(db.String, nullable=False)
     hit_numers = db.Column(db.Integer, nullable=False, default=0)
-    comment_numbers = db.Column(db.Integer, nullable=False, default=0)
     body_html = db.Column(db.String)
     created = db.Column(db.DateTime, nullable=False, default=datetime.now)
     # 每篇文章都有一个作者，一一对应关系,在jinja模板中可以使用article.user.name获取用户名

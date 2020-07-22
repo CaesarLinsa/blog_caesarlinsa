@@ -8,11 +8,6 @@ SECRET_KEY = 'super secret key'
 ## bootstrap
 BOOTSTRAP_SERVE_LOCAL = True
 
-## redis
-REDIS_URL = "redis://:@127.0.0.1:6379/0"
-# flask_session的配置信息
-# 指定 session 保存到 redis 中
-SESSION_TYPE = "redis"
 # 让 cookie 中的 session_id 被加密签名处理
 SESSION_USE_SIGNER = True
 SESSION_PERMANENT = False
